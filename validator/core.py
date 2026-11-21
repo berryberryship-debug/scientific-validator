@@ -1,42 +1,52 @@
-from . import data_checks
-from . import physics_checks
+import logging
+import json
+from dataclasses import dataclass, field
+from typing import Callable, List, Any
+
+# Configuration du logging (remplace les print)
+logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+
+@dataclass
+class TestResult:
+    name: str
+    success: bool
+    message: str
+    details: dict = field(default_factory=dict)
 
 class ScientificValidator:
-    def __init__(self, project_name):
+    def __init__(self, project_name: str):
         self.project_name = project_name
-        self.report = []
-        self.is_valid = True
+        self.results: List[TestResult] = []
+        logging.info(f"Initialisation du validateur pour : {project_name}")
 
-    def log(self, success, message):
-        """Enregistre le résultat d'un test."""
-        if not success:
-            self.is_valid = False
-        self.report.append(message)
+    def run_test(self, test_name: str, test_func: Callable, *args, **kwargs) -> bool:
+        """Exécute un test de manière sécurisée (gère les exceptions)."""
+        try:
+            success, msg, details = test_func(*args, **kwargs)
+            self.results.append(TestResult(test_name, success, msg, details))
+            if success:
+                logging.info(f"✅ {test_name} : {msg}")
+            else:
+                logging.error(f"❌ {test_name} : {msg}")
+            return success
+        except Exception as e:
+            error_msg = f"Exception lors de l'exécution : {str(e)}"
+            self.results.append(TestResult(test_name, False, error_msg))
+            logging.critical(f"🔥 {test_name} a crashé : {error_msg}")
+            return False
 
-    def validate_data_integrity(self, data, name="Dataset"):
-        success, msg = data_checks.check_nan_inf(data, name)
-        self.log(success, msg)
-
-    def validate_trace(self, matrix, expected=1.0, name="Density Matrix"):
-        success, msg = physics_checks.check_trace(matrix, expected, name=name)
-        self.log(success, msg)
-
-    def validate_energy(self, energy_in, energy_out):
-        success, msg = physics_checks.check_energy_conservation(energy_in, energy_out)
-        self.log(success, msg)
-
-    def generate_report(self):
-        print(f"\n{'='*40}")
-        print(f" RAPPORT DE VALIDATION : {self.project_name}")
-        print(f"{'='*40}")
-        for line in self.report:
-            print(line)
-        
-        print(f"{'='*40}")
-        if self.is_valid:
-            print("✅ SUCCÈS : Toutes les vérifications sont passées.")
-        else:
-            print("❌ ÉCHEC : Des erreurs ont été détectées.")
-        print(f"{'='*40}\n")
-        
-        return self.is_valid
+    def export_report(self, filename="validation_report.json"):
+        """Génère un rapport JSON exploitable par d'autres scripts."""
+        report_data = {
+            "project": self.project_name,
+            "global_success": all(r.success for r in self.results),
+            "total_tests": len(self.results),
+            "failed_tests": sum(1 for r in self.results if not r.success),
+            "results": [
+                {"test": r.name, "success": r.success, "message": r.message, "details": r.details}
+                for r in self.results
+            ]
+        }
+        with open(filename, 'w', encoding='utf-8') as f:
+            json.dump(report_data, f, indent=4, ensure_ascii=False)
+        logging.info(f"📄 Rapport exporté avec succès vers {filename}")
