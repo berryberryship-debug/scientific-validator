@@ -1,38 +1,34 @@
-# [Nom de votre dépôt] - Universal Scientific Validator
+# Universal Scientific Validator
 
-> **A meta-tool for rigorous validation of scientific software across multiple disciplines.** 
-> *Un méta-outil de validation pour assurer la robustesse des simulations et des analyses de données, du calcul quantique à la psychophysiologie.*
+> **A modular Python framework for rigorous validation of scientific software across multiple disciplines.**
+> *Un framework Python modulaire pour la validation rigoureuse de logiciels scientifiques multidisciplinaires.*
 
-## 📖 Philosophy / Philosophie
+## 📖 Overview / Vue d'ensemble
 
-Scientific software often suffers from silent failures: a simulation runs without crashing, but the physical invariants are violated (e.g., probabilities exceeding 1), or data analysis pipelines output artifacts (e.g., NaN values hidden in arrays). 
+Scientific software often suffers from silent failures: a simulation runs without crashing, but the physical invariants are violated, or data analysis pipelines output hidden artifacts. 
 
-As a multidisciplinary researcher, I developed this framework to solve a recurring problem: **how to rigorously validate programs across completely different fields** (Physics, Biology, Neuroscience, Data Science). 
+This framework provides a universal "Test Harness" to validate programs across completely different fields: **Quantum Physics, Biology, and Neuroscience**. It was born from the need to rigorously verify simulations developed during my research, such as the *TemporalMode-QNet* project.
 
-Instead of rewriting test scripts for every new project, this repository provides a modular, universal "Test Harness". It is the direct evolution of the validation protocols developed during my work on *TemporalMode-QNet* (Quantum Microwave Routing).
-
-*Ce framework est né du besoin de vérifier rigoureusement des programmes issus de domaines variés. Il s'inspire des tests de non-régression et des vérifications d'invariants physiques mis en place pour mon projet TemporalMode-QNet.*
+*Ce framework est né du besoin de vérifier rigoureusement des programmes issus de domaines variés. Il s'inspire des tests de non-régression et des vérifications d'invariants physiques.*
 
 ## 🛠️ Core Features / Fonctionnalités Clés
 
-*   **Physical & Mathematical Invariants:** Automatically check conservation laws, probability sums (trace = 1), and normalization. *(Vérification des lois de conservation et d'invariants).*
-*   **Data Integrity Checks:** Detect `NaN`, `Inf`, or aberrant values before they propagate through your pipeline. *(Détection de données aberrantes).*
-*   **Cross-Domain Adaptability:** Pre-configured modules for signal processing (Neuro/Physio) and quantum/open-system simulations (Physics).
-*   **Transparent Reporting:** Generates clear, human-readable validation reports.
+*   **Quantum Physics (`physics_checks.py`)** : Validates density matrices (Hermiticity), unitary gates (\(U U^\dagger = I\)), and energy conservation.
+*   **Data Science & Neuro (`data_checks.py`)** : Detects `NaN`/`Inf` artifacts, validates sampling rates, and checks data quality ratios.
+*   **Quantum Machine Learning (`qml_checks.py`)** : Validates parameterized quantum circuits (e.g., \(R_y\) gates) for QLSTM architectures.
+*   **Transparent Reporting** : Generates clear, human-readable JSON validation reports.
 
-## 📂 Proposed Architecture / Architecture Proposée
+## 🚀 Quick Start / Démarrage Rapide
 
-```text
-├── validator/
-│   ├── __init__.py
-│   ├── core.py           # Base Validator Class
-│   ├── data_checks.py    # NaN, Inf, shape, and format validation
-│   ├── physics_checks.py # Trace, energy conservation, unitary checks
-│   └── bio_checks.py     # Signal artifacts, sequence integrity (WIP)
-├── examples/
-│   ├── example_quantum.py  # How to validate a Quantum Simulation
-│   ├── example_neuro.py    # How to validate EEG/ECG signal processing
-│   └── example_data.py     # General data pipeline validation
-├── tests/                  # Unit tests for the validator itself
-├── requirements.txt
-└── README.md
+Ensure you have `numpy` installed, then run the validation scripts:
+
+```bash
+# Clone the repository
+git clone https://github.com/berryberryship-debug/[ton-nom-de-depot].git
+cd [ton-nom-de-depot]
+
+# Run the physics & data validation suite
+python run_validation.py
+
+# Run the Quantum Machine Learning (QML) validation suite
+python run_qml_test.py
