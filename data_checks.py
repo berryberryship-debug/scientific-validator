@@ -1,25 +1,15 @@
 import numpy as np
 
-def check_nan_inf(data, name="data"):
-    """
-    Vérifie la présence de valeurs aberrantes (NaN ou Infini).
-    Retourne (bool, str) : (True si valide, message).
-    """
-    if not isinstance(data, np.ndarray):
-        data = np.array(data)
-        
-    if np.isnan(data).any():
-        return False, f"[ERREUR] {name} contient des valeurs NaN."
-    if np.isinf(data).any():
-        return False, f"[ERREUR] {name} contient des valeurs infinies (Inf)."
-    
-    return True, f"[OK] {name} ne contient pas de NaN/Inf."
+def is_hermitian(matrix: np.ndarray, tolerance=1e-8) -> tuple[bool, str, dict]:
+    """Vérifie si une matrice est hermitienne (M = M†). Fondamental en mécanique quantique."""
+    if not np.allclose(matrix, matrix.conj().T, atol=tolerance):
+        return False, "La matrice n'est pas hermitienne.", {"norm_diff": float(np.linalg.norm(matrix - matrix.conj().T))}
+    return True, "Matrice hermitienne validée.", {}
 
-def check_shape(data, expected_shape, name="data"):
-    """
-    Vérifie que la dimension des données est celle attendue.
-    """
-    if data.shape == expected_shape:
-        return True, f"[OK] {name} a la bonne dimension {expected_shape}."
-    else:
-        return False, f"[ERREUR] {name} a la dimension {data.shape}, attendu : {expected_shape}."
+def is_unitary(matrix: np.ndarray, tolerance=1e-8) -> tuple[bool, str, dict]:
+    """Vérifie si une matrice est unitaire (U U† = I). Fondamental pour les portes quantiques."""
+    identity = np.eye(matrix.shape[0])
+    product = np.dot(matrix, matrix.conj().T)
+    if not np.allclose(product, identity, atol=tolerance):
+        return False, "La matrice n'est pas unitaire.", {"max_deviation": float(np.max(np.abs(product - identity)))}
+    return True, "Matrice unitaire validée (U U† = I).", {}
